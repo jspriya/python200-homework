@@ -59,7 +59,7 @@ print(mean_grades)
 
 # ------------------ Pandas Q6 - Replace 'Austin' to 'Houston' in City column -----------------
 
-df["city"].replace("Austin", "Houston")
+df["city"].replace("Austin", "Houston", inplace= True)
 # Print the name and city columns
 print(df[["name", "city"]])
 
