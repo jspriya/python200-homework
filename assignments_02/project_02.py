@@ -7,6 +7,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 
 # --------- Task1 - Load and Explore -------
+# The CSV file uses semicolons (;) as separators instead of commas.
+# pd.read_csv() needs the sep=';' parameter to correctly read this file.
 
 df = pd.read_csv("student_performance_math.csv", sep=";")
 
@@ -276,6 +278,7 @@ print("R²:", r2)
 
 # Features selected from the Feature Guide
 feature_cols = [
+    "age",
     "failures",
     "Medu",
     "Fedu",
@@ -286,8 +289,6 @@ feature_cols = [
     "sex",
     "freetime",
     "activities",
-    "traveltime",
-    "age",
     "traveltime",
     "absences",
     "goout", 
