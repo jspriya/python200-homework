@@ -7,8 +7,6 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 
 # --------- Task1 - Load and Explore -------
-# The CSV file uses semicolons (;) as separators instead of commas.
-# pd.read_csv() needs the sep=';' parameter to correctly read this file.
 
 df = pd.read_csv("student_performance_math.csv", sep=";")
 
@@ -278,7 +276,6 @@ print("R²:", r2)
 
 # Features selected from the Feature Guide
 feature_cols = [
-    "age",
     "failures",
     "Medu",
     "Fedu",
@@ -289,10 +286,7 @@ feature_cols = [
     "sex",
     "freetime",
     "activities",
-    "traveltime",
-    "absences",
-    "goout", 
-    "Walc"
+    "traveltime"
 ]
 
 # Create feature matrix and target
@@ -408,41 +402,26 @@ plt.show()
 # relatively low R², predictions are not tightly clustered around the diagonal.
 # The model captures general patterns but still has considerable uncertainty.
 
-
-#  --------- Plain-language model summary --------------------
+# Model summary 
+# After removing students with G3 = 0 (students who did not take the final
+# exam), the filtered dataset contained 357 students. The test set contained
+# 72 students (20% of the filtered dataset).
 #
-# After removing students with G3=0, the dataset contained 357 students.
-# The test set contained 72 students.
+# The final model achieved:
+# Test RMSE: 2.855
+# Test R²: 0.154
 #
-# The full model achieved:
-# Test R²: 0.263
-# Test RMSE: 2.664
-#
-# An RMSE of about 2.7 means that the model's predictions are typically off
-# by around 3 points on a 0-20 grading scale. For example, if the model
+# An RMSE of about 2.86 means that the model's predictions are typically wrong
+# by about 3 grade points on a 0-20 grading scale. For example, if the model
 # predicts a student will score 12, the actual score may commonly be around
-# 9-15.
+# 9-15. This is a meaningful error because a few points can change a student's
+# grade category.
 #
-# The R² of 0.263 means that the model explains about 26% of the variation
-# in final grades. The remaining variation likely comes from factors not
-# included in the dataset, such as motivation, ability, teacher differences,
-# and earlier academic knowledge.
-#
-# The largest positive coefficient was internet (+1.037), meaning students
-# with internet access were predicted to have higher grades by about 1 point,
-# holding other factors constant.
-#
-# The largest negative coefficient was schoolsup (-2.263). This was surprising,
-# but likely reflects that students receiving school support are already
-# struggling academically. The coefficient captures who receives support,
-# not that support causes lower grades.
-#
-# The train R² (0.235) and test R² (0.263) are close, suggesting that the model
-# generalizes reasonably well and is not overfitting.
-#
-# One surprising result was that adding more background and behavioral
-# features improved the model, but the improvement was still limited.
-# Predicting final grades without using earlier grades remains challenging.
+# The R² of 0.154 means the model explains about 15% of the variation in final
+# grades using the available background and behavioral features. The remaining
+# variation is likely due to factors not included in the dataset, such as
+# motivation, individual ability, teaching quality, or earlier academic
+# knowledge.
 
 # --------- Neglected Feature - The power of G1 -----------
 
@@ -459,12 +438,7 @@ feature_cols_with_g1 = [
     "freetime",
     "activities",
     "traveltime",
-    "G1",
-    "age",
-    "traveltime",
-    "absences",
-    "goout", 
-    "Walc"
+    "G1"
 ]
 
 # Create feature matrix and target
@@ -488,31 +462,21 @@ test_r2_g1 = model_g1.score(X_test_g1, y_test_g1)
 
 print("Test R² with G1 included:", test_r2_g1)
 
-# Interpretation of G1 model:
+# Adding G1 dramatically improves the model's performance because G1 is an
+# earlier grade from the same course and is closely related to the final grade
+# G3. A high R² does not mean that G1 causes G3. Instead, both grades reflect
+# the student's underlying academic performance, preparation, and progress in
+# the course.
 #
-# Adding G1 (first period grade) dramatically improved the model performance.
-# The test R² increased to approximately 0.749, compared with approximately
-# 0.263 for the full model without G1. This means that including the first
-# period grade allows the model to explain about 75% of the variation in the
-# final grade (G3).
+# This model is useful for predicting final grades once the first-period grade
+# is available. It can help identify students who may be at risk during the
+# school year and allow educators to provide support before the final exam.
 #
-# However, a high R² does not mean that G1 is causing G3. G1 and G3 are both
-# measures of the student's academic performance in the same course. A strong
-# relationship exists because students who perform well early in the course
-# often continue to perform well later. The model is using an earlier measure
-# of achievement to predict a later measure of achievement.
+# However, this model is not useful for identifying struggling students before
+# G1 exists because it depends heavily on information that is only available
+# after the course has already started.
 #
-# This model is useful for identifying students who might struggle after the
-# first grading period. Once G1 is available, educators can use the model to
-# identify students who are predicted to have lower final grades and provide
-# additional support before the end of the course.
-#
-# However, this model cannot help with early intervention before G1 exists,
-# because it relies heavily on a grade that is only available after the course
-# has already started.
-#
-# To intervene earlier, educators would need to use features available before
-# the first grade is recorded, such as attendance patterns, previous academic
-# history, study habits, engagement, family support, and behavioral indicators.
-# The goal would be to identify students who may need help before they begin
-# falling behind academically.
+# To intervene earlier, educators would need to use earlier indicators such as
+# attendance, study habits, prior academic history, engagement, family support,
+# and behavioral patterns. The goal would be to identify risk factors before
+# the first major grade is recorded.
