@@ -462,21 +462,44 @@ test_r2_g1 = model_g1.score(X_test_g1, y_test_g1)
 
 print("Test R² with G1 included:", test_r2_g1)
 
-# Adding G1 dramatically improves the model's performance because G1 is an
-# earlier grade from the same course and is closely related to the final grade
-# G3. A high R² does not mean that G1 causes G3. Instead, both grades reflect
-# the student's underlying academic performance, preparation, and progress in
-# the course.
+# Plain-language summary:
 #
-# This model is useful for predicting final grades once the first-period grade
-# is available. It can help identify students who may be at risk during the
-# school year and allow educators to provide support before the final exam.
+# After removing students with G3 = 0 (students who did not take the final
+# exam), the filtered dataset contained 357 students. The test set contained
+# 72 students.
 #
-# However, this model is not useful for identifying struggling students before
-# G1 exists because it depends heavily on information that is only available
-# after the course has already started.
+# The full model achieved a test R² of 0.154 and a test RMSE of 2.855.
+# This means the model explains about 15% of the variation in final grades.
+# The typical prediction error is about 2.9 points on a 0-20 grading scale.
+# For example, if the model predicts a student will score 12, the actual grade
+# may commonly be around 9-15.
 #
-# To intervene earlier, educators would need to use earlier indicators such as
-# attendance, study habits, prior academic history, engagement, family support,
-# and behavioral patterns. The goal would be to identify risk factors before
-# the first major grade is recorded.
+# The largest positive coefficient was internet (+0.834). This means that,
+# holding other features constant, students with internet access at home were
+# predicted to have final grades about 0.8 points higher. The second largest
+# positive coefficient was higher (+0.610), suggesting that students planning
+# to pursue higher education tended to have higher predicted grades.
+#
+# The largest negative coefficient was schoolsup (-2.062), followed by
+# failures (-1.145). The negative schoolsup coefficient was surprising because
+# additional academic support might be expected to improve grades. However,
+# this likely reflects that students receiving extra support are already
+# struggling academically. The model is capturing who receives support rather
+# than showing that support causes lower grades.
+#
+# The train R² (0.175) and test R² (0.154) are close, suggesting that the model
+# is not overfitting and performs similarly on unseen data.
+#
+# One surprising result was that adding many demographic and behavioral
+# features only improved prediction modestly. This shows that final grades are
+# influenced by many factors not captured in this dataset, such as motivation,
+# prior knowledge, learning environment, and teacher effects.
+#
+# Adding G1 as a feature greatly improved performance, increasing the test R²
+# to 0.749. However, this does not mean G1 causes G3. Both grades measure
+# academic performance in the same course, so G1 is a strong indicator of
+# existing student performance. This model can help identify students who may
+# struggle after the first grading period, but it cannot support early
+# intervention before G1 is available. Earlier intervention would require
+# using information available before grades are recorded, such as attendance,
+# study habits, engagement, and prior academic history.
