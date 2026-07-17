@@ -275,18 +275,23 @@ print("R²:", r2)
 # ---------- Task 5 - Build the full model ------------
 
 # Features selected from the Feature Guide
+
 feature_cols = [
+    "age",
+    "Medu", 
+    "Fedu", 
+    "traveltime", 
+    "studytime", 
     "failures",
-    "Medu",
-    "Fedu",
-    "studytime",
-    "higher",
+    "absences", 
+    "freetime", 
+    "goout", 
+    "Walc", 
     "schoolsup",
-    "internet",
-    "sex",
-    "freetime",
-    "activities",
-    "traveltime"
+    "internet", 
+    "higher", 
+    "activities", 
+    "sex"
 ]
 
 # Create feature matrix and target
@@ -326,35 +331,55 @@ for name, coef in zip(feature_cols, model_full.coef_):
 
 # Full model interpretation:
 #
-# Train R²: 0.175
-# Test R²: 0.154
-# Test RMSE: 2.855
+# The baseline model using only failures achieved an R² of 0.089 and an RMSE
+# of 2.96. Adding the remaining demographic and behavioral features increased
+# the test R² to 0.263 and reduced the RMSE to 2.66.
 #
-# Adding more features improved the test R² from about 0.089 to 0.154.
-# This means the additional background and behavioral features help the model
-# explain more variation in grades, but the improvement is modest. Student
-# performance depends on many factors that are not included in this dataset.
+# This means the full model explains about 26% of the variation in final
+# grades, compared with only 9% for the baseline model. Adding more features
+# clearly improves prediction, although most of the variation in grades is
+# still explained by factors outside this dataset.
 #
-# The train and test R² values are close (0.175 vs 0.154), which suggests the
-# model is not heavily overfitting. The model performs similarly on unseen
-# data as it does on training data.
-
-# Production model decision:
+# The train R² (0.235) and test R² (0.263) are very close. In fact, the test
+# score is slightly higher than the training score, which can happen because
+# of random variation in the train/test split. There is no evidence of
+# overfitting, and the model appears to generalize reasonably well.
 #
-# If deploying this model, I would keep failures, studytime, higher, internet,
-# and parental education because they show meaningful relationships with G3
-# and have reasonable practical explanations.
+# The largest positive coefficient is internet (+1.037). Holding all other
+# variables constant, students with internet access at home are predicted to
+# score about one point higher on their final grade. This may reflect access
+# to educational resources or broader socioeconomic advantages.
 #
-# I would consider dropping freetime and activities because their coefficients
-# are close to zero and they add little predictive value. I would also review
-# schoolsup carefully because its negative coefficient likely reflects
-# selection bias rather than the true impact of receiving support.
-
-# train/test gap is small:
-
-# Train R² = 0.175
-# Test R² = 0.154
-# Difference = 0.021 - The model is not memorizing the training data
+# The second largest positive coefficient is sex (+0.402). Since sex was
+# encoded as F=0 and M=1, this means male students in this dataset are
+# predicted to score about 0.4 points higher after accounting for the other
+# variables. This should be interpreted as a pattern in this dataset rather
+# than an inherent difference between genders.
+#
+# The largest negative coefficient is schoolsup (-2.263). This is surprising,
+# because extra educational support might be expected to improve grades.
+# However, students receiving school support are often those who are already
+# struggling academically, so the model is capturing who receives support
+# rather than the effect of support itself.
+#
+# The second largest negative coefficient is failures (-0.800), meaning each
+# additional previous failure is associated with approximately a 0.8 point
+# decrease in predicted final grade, holding all other variables constant.
+#
+# Weekend alcohol consumption (-0.268) and time spent going out with friends
+# (-0.313) also show negative relationships with final grades.
+#
+# If deploying this model in production, I would keep failures, studytime,
+# internet, parental education, goout, Walc, and absences because they show
+# meaningful relationships with final grades and have plausible explanations.
+#
+# I would consider dropping freetime (+0.014), activities (+0.061), and
+# higher (+0.090) because their coefficients are very small and they may add
+# little predictive value.
+#
+# I would keep schoolsup despite its negative coefficient because it may serve
+# as an important indicator that a student has already been identified as
+# needing additional academic support.
 
 # ----------- Task 6 - Evaluate and Summarize --------------
  
@@ -389,39 +414,71 @@ plt.savefig("outputs/predicted_vs_actual.png", bbox_inches="tight")
 
 plt.show()
 
-# Points above the diagonal line represent cases where the actual grade was
-# higher than the predicted grade. The model underestimated the student's
-# performance.
+# Interpretation of predicted vs actual plot:
 #
-# Points below the diagonal line represent cases where the actual grade was
-# lower than the predicted grade. The model overestimated the student's
-# performance.
+# Points above the diagonal line represent students whose actual grades were
+# higher than the model predicted. In these cases, the model underestimated
+# student performance.
 #
-# The errors appear to be spread across the grade range rather than being
-# concentrated only at the high or low end. However, because the model has a
-# relatively low R², predictions are not tightly clustered around the diagonal.
-# The model captures general patterns but still has considerable uncertainty.
-
-# Model summary 
+# Points below the diagonal line represent students whose actual grades were
+# lower than the model predicted. In these cases, the model overestimated
+# student performance.
+#
+# The prediction errors appear to be fairly evenly distributed across the
+# grade range rather than concentrated only among very high or very low
+# grades. Some spread around the diagonal is expected and reflects the limits
+# of the available features.
+#
+# -------------------------------------------------------------
+# Plain-language summary:
+#
 # After removing students with G3 = 0 (students who did not take the final
 # exam), the filtered dataset contained 357 students. The test set contained
-# 72 students (20% of the filtered dataset).
+# 72 students.
 #
-# The final model achieved:
-# Test RMSE: 2.855
-# Test R²: 0.154
+# The best model without using previous grades achieved a test R² of 0.263
+# and a test RMSE of 2.664.
 #
-# An RMSE of about 2.86 means that the model's predictions are typically wrong
-# by about 3 grade points on a 0-20 grading scale. For example, if the model
-# predicts a student will score 12, the actual score may commonly be around
-# 9-15. This is a meaningful error because a few points can change a student's
-# grade category.
+# An RMSE of approximately 2.7 means that predictions are typically off by
+# about 3 grade points on a 0-20 grading scale. For example, if the model
+# predicts a final grade of 12, the actual grade might commonly fall between
+# about 9 and 15.
 #
-# The R² of 0.154 means the model explains about 15% of the variation in final
-# grades using the available background and behavioral features. The remaining
-# variation is likely due to factors not included in the dataset, such as
-# motivation, individual ability, teaching quality, or earlier academic
-# knowledge.
+# The model explains about 26% of the variation in final grades. This means
+# that while the included features capture some meaningful patterns, most of
+# the variation in student performance comes from factors that are not present
+# in the dataset, such as motivation, prior knowledge, classroom engagement,
+# teaching quality, and individual learning differences.
+#
+# The largest positive coefficient was internet (+1.037), meaning students
+# with internet access at home were predicted to score about one point higher
+# than similar students without internet access.
+#
+# The largest negative coefficient was schoolsup (-2.263), followed by
+# failures (-0.800). The negative school support coefficient was surprising,
+# but it likely reflects that students receiving additional support are
+# already struggling academically rather than support causing lower grades.
+#
+# One surprising result was that even after adding many demographic and
+# behavioral variables, the model still explained only about 26% of the
+# variation in grades. Predicting academic performance without using earlier
+# grades turns out to be much more difficult than expected.
+#
+# Adding G1 as a feature dramatically improved performance, increasing the
+# test R² to 0.749. However, this does not mean G1 causes G3. G1 is simply an
+# earlier measure of performance in the same course, so it naturally contains
+# much of the information needed to predict the final grade.
+#
+# This model would be useful for identifying students who may struggle after
+# the first grading period. If educators wanted to intervene earlier, before
+# G1 was available, they would need to rely on features such as attendance,
+# study habits, previous academic history, and engagement indicators instead
+# of prior grades.
+
+
+
+
+
 
 # --------- Neglected Feature - The power of G1 -----------
 
