@@ -171,24 +171,22 @@ print(classification_report(y_test, y_pred_tree))
 c_values = [0.01, 1.0, 100]
 
 for c in c_values:
-    model = OneVsRestClassifier(
-        LogisticRegression(
-            C=c,
-            max_iter=1000,
-            solver="liblinear"
-        )
+    # Use lbfgs solver (or default) to support multi-class natively without wrappers or deprecated args
+    model = LogisticRegression(
+        C=c,
+        max_iter=1000,
+        solver="lbfgs"
     )
 
     model.fit(X_train_scaled, y_train)
 
-    # Combine coefficients from all three binary classifiers
-    coefficient_sum = np.abs(
-        np.array([est.coef_ for est in model.estimators_])
-    ).sum()
+    # Directly compute total coefficient magnitude
+    coefficient_sum = np.abs(model.coef_).sum()
 
     print(f"C = {c}")
     print("Total coefficient magnitude:", coefficient_sum)
     print()
+       
 
 # As C increases, the total coefficient magnitude increases significantly.
 # With C=0.01, the model applies strong regularization, forcing the
@@ -270,6 +268,20 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
         reconstruction = reconstruction + scores[sample_idx, i] * pca.components_[i]
 
     return reconstruction.reshape(8, 8)
+
+# ------------  Q3  -------------
+plt.figure(figsize=(8, 5))
+plt.plot(np.cumsum(pca.explained_variance_ratio_), marker='o', linestyle='--', markersize=3)
+plt.axhline(y=0.80, color='r', linestyle=':', label='80% Explained Variance')
+plt.xlabel('Number of Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('PCA Cumulative Explained Variance')
+plt.grid(True)
+plt.legend()
+plt.savefig("outputs/pca_variance_explained.png")
+plt.show()
+
+# To explain 80% of the variance, approximately 13 to 15 components are needed.
 
 # -------------- Q4 ---------------------
 

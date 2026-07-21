@@ -342,6 +342,14 @@ plt.savefig("outputs/feature_importances.png")
 
 plt.show()
 
+# Both models identify char_freq_$, char_freq_!, word_freq_remove,
+# word_freq_free, and capital letter features as important predictors.
+# The Decision Tree relies much more heavily on char_freq_$, while the
+# Random Forest spreads importance across several features because it
+# averages many trees.
+#
+# These results match my intuition because spam emails often contain
+# promotional words, excessive punctuation, and unusual capitalization.
 
 # The Decision Tree and Random Forest agree on several important features,
 # including char_freq_$, word_freq_remove, char_freq_!, word_freq_free,
