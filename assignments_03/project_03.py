@@ -356,46 +356,45 @@ plt.show()
 # to money symbols, marketing language, and capital letter usage are therefore
 # strong indicators of spam.
 
-"""
-Agreement between models:
----------------------------
 
-Both models found:
+#Agreement between models:
+#---------------------------
 
-Feature	Decision Tree	Random Forest
-char_freq_$	        #1	    #2
-word_freq_remove	#2	    #3
-char_freq_!	        #3	    #1
-word_freq_free	    #5	    #4
-Capital letter
-features	        Important	Important
+#Both models found:
 
-So they clearly agree on the general spam signals.
+#Feature	Decision Tree	Random Forest
+#char_freq_$	        #1	    #2
+#word_freq_remove	    #2	    #3
+#char_freq_!	        #3	    #1
+#word_freq_free	        #5	    #4
+#Capital letter
+#features	        Important	Important
 
-Difference between Decision Tree and Random Forest:
----------------------------------------------------
+#So they clearly agree on the general spam signals.
 
-The Decision Tree has:
+#Difference between Decision Tree and Random Forest:
+#---------------------------------------------------
 
-char_freq_$ = 0.461
+#The Decision Tree has:
 
-which is extremely high. That means one tree found a split involving $ that was very powerful for this 
-particular training set.
+#char_freq_$ = 0.461
 
-The Random Forest has:
+#which is extremely high. That means one tree found a split involving $ that was very powerful for this 
+#particular training set.
 
-char_freq_$ = 0.103
-char_freq_! = 0.114
+#The Random Forest has:
 
-because it averages across many trees and many random feature subsets. It is less likely to over-rely 
-on one feature.
+#char_freq_$ = 0.103
+#char_freq_! = 0.114
 
-The Decision Tree appears to rely heavily on a single feature (char_freq_$),
-which may make it more sensitive to changes in the training data. The
-Random Forest provides a more balanced view of feature importance because
-it averages many different trees.
+#because it averages across many trees and many random feature subsets. It is less likely to over-rely 
+#on one feature.
 
-"""
+#The Decision Tree appears to rely heavily on a single feature (char_freq_$),
+#which may make it more sensitive to changes in the training data. The
+#Random Forest provides a more balanced view of feature importance because
+#it averages many different trees.
+
 
 # 6. Logistic Regression (scaled)
 
@@ -425,37 +424,37 @@ print("-----------------------------")
 print(accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 
-""""
-Based on the model results, the Random Forest is clearly the best-performing model.
 
-Here's a comparison:
+#Based on the model results, the Random Forest is clearly the best-performing model.
 
-Model	            Accuracy	   Notes
------------------------------------------
-KNN (unscaled)	    0.799	       Poor performance because KNN is sensitive to feature scales.
-KNN (scaled)	    0.908	       Scaling greatly improved performance.
-KNN (PCA)	        0.907	       Almost identical to scaled KNN; PCA did not provide additional benefit.
-Decision Tree	    0.911	       Highest accuracy at max_depth=None, but the perfect training accuracy (0.9997) indicates overfitting.
-Random Forest	    0.946	       Best overall accuracy and balanced precision/recall.
-Logistic 	    
-Regression (scaled) 0.929	       Strong performance.
-Logistic 	    
-Regression(PCA)     0.919	       Slightly worse than without PCA.
+#Here's a comparison:
 
-Scaling greatly improved KNN performance because KNN relies on distance
-calculations. Logistic Regression also performed slightly better on the
-scaled data than on the PCA-reduced data, suggesting that PCA removed a
-small amount of useful information. This matches the expectation from
-Task 2 that PCA may help simplify the data but does not always improve
-classification performance.
+#Model	            Accuracy	   Notes
+#-----------------------------------------
+#KNN (unscaled)	    0.799	       Poor performance because KNN is sensitive to feature scales.
+#KNN (scaled)	    0.908	       Scaling greatly improved performance.
+#KNN (PCA)	        0.907	       Almost identical to scaled KNN; PCA did not provide additional benefit.
+#Decision Tree	    0.911	       Highest accuracy at max_depth=None, but the perfect training accuracy (0.9997) indicates overfitting.
+#Random Forest	    0.946	       Best overall accuracy and balanced precision/recall.
+#Logistic 	    
+#Regression (scaled) 0.929	       Strong performance.
+#Logistic 	    
+#Regression(PCA)     0.919	       Slightly worse than without PCA.
 
-For a spam filter, accuracy alone is not the most important metric.
-I would prioritize minimizing false positives, since incorrectly marking
-a legitimate email as spam could cause users to miss important messages.
-Although false negatives allow spam into the inbox, users can usually
-delete unwanted emails more easily than recovering legitimate emails
-that were filtered out.
-"""
+#Scaling greatly improved KNN performance because KNN relies on distance
+#calculations. Logistic Regression also performed slightly better on the
+#scaled data than on the PCA-reduced data, suggesting that PCA removed a
+#small amount of useful information. This matches the expectation from
+#Task 2 that PCA may help simplify the data but does not always improve
+#classification performance.
+
+#For a spam filter, accuracy alone is not the most important metric.
+#I would prioritize minimizing false positives, since incorrectly marking
+#a legitimate email as spam could cause users to miss important messages.
+#Although false negatives allow spam into the inbox, users can usually
+#delete unwanted emails more easily than recovering legitimate emails
+#that were filtered out.
+
 # 8. Confusion Matrix
 ConfusionMatrixDisplay.from_estimator(
     rf,
@@ -470,27 +469,25 @@ plt.title("Random Forest Confusion Matrix")
 plt.savefig("outputs/best_model_confusion_matrix.png")
 
 plt.show()
-"""
-True Negatives (540): 540 legitimate emails (Ham) were correctly identified as Ham.
 
-True Positives (331): 331 spam emails were correctly identified as Spam.
+#True Negatives (540): 540 legitimate emails (Ham) were correctly identified as Ham.
 
-False Positives (18): 18 legitimate emails were misclassified as Spam (false alarms).
+#True Positives (331): 331 spam emails were correctly identified as Spam.
 
-False Negatives (32): 32 spam emails were misclassified as Ham (missed spam).
+#False Positives (18): 18 legitimate emails were misclassified as Spam (false alarms).
 
-Key Takeaways
----------------
-1. High Overall Accuracy: Out of 921 total test samples ($540 + 18 + 32 + 331$), the model got 871 correct, 
-which is roughly 94.6% accuracy.
+#False Negatives (32): 32 spam emails were misclassified as Ham (missed spam).
 
-2. Low False Positive Rate: Only 18 out of 558 legitimate emails ($~3.2\%$) were incorrectly flagged as spam.
-This is important because blocking regular emails is usually worse than missing a spam email.
+#Key Takeaways
+#---------------
+#1. High Overall Accuracy: Out of 921 total test samples ($540 + 18 + 32 + 331$), the model got 871 correct, 
+#which is roughly 94.6% accuracy.
 
-3. Slightly More False Negatives: The model missed 32 spam emails ($~8.8\%$ of total spam), 
-sending them to the primary inbox instead of the spam folder.
+#2. Low False Positive Rate: Only 18 out of 558 legitimate emails ($~3.2\%$) were incorrectly flagged as spam.
+#This is important because blocking regular emails is usually worse than missing a spam email.
 
-"""
+#3. Slightly More False Negatives: The model missed 32 spam emails ($~8.8\%$ of total spam), 
+#sending them to the primary inbox instead of the spam folder.
 
 # -------------------------
 # Task 4: Cross Validation
@@ -649,39 +646,39 @@ print("Std deviation:", scores.std())
 # as spam), because losing an important email can be more harmful than allowing
 # some spam messages through. A good spam filter should balance precision and
 # recall rather than optimizing accuracy alone.
-"""
-Actual numbers:
----------------
-Best accuracy:
 
-🥇 Random Forest: 95.43%
-Logistic Regression scaled: 92.36%
-Logistic Regression PCA: 91.49%
-Decision Tree: 90.73%
-KNN PCA: 90.84%
-KNN scaled: 90.46%
-KNN unscaled: 79.43%
 
-Most stable model (lowest variance)
-------------------------------------
+#Actual numbers:
+#---------------
+#Best accuracy:
 
-Strictly by standard deviation:
+# Random Forest: 95.43%
+# Logistic Regression scaled: 92.36%
+# Logistic Regression PCA: 91.49%
+# Decision Tree: 90.73%
+# KNN PCA: 90.84%
+# KNN scaled: 90.46%
+# KNN unscaled: 79.43%
 
-Model	                Std Dev
-Logistic Regression PCA	0.0034 
-KNN PCA	                0.0094
-KNN scaled	            0.0094
-Logistic Regression scaled	0.0097
-Random Forest	        0.0133
-Decision Tree	        0.0158
-KNN unscaled	        0.0182
+# Most stable model (lowest variance)
+# ------------------------------------
 
-Conclusion:
------------
-Most accurate: Random Forest
-Most stable: Logistic Regression with PCA
+#Strictly by standard deviation:
 
-"""
+#Model	                Std Dev
+#Logistic Regression PCA	0.0034 
+#KNN PCA	                0.0094
+#KNN scaled	            0.0094
+#Logistic Regression scaled	0.0097
+#Random Forest	        0.0133
+#Decision Tree	        0.0158
+#KNN unscaled	        0.0182
+
+#Conclusion:
+#-----------
+#Most accurate: Random Forest
+#Most stable: Logistic Regression with PCA
+
 # ----------------------------------
 #      Task 5
 #-----------------------------------
