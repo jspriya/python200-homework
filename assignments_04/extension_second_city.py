@@ -1,3 +1,5 @@
+# Train weather data on Miami
+
 import requests
 import pandas as pd
 import json
@@ -21,8 +23,8 @@ import os
 url = "https://archive-api.open-meteo.com/v1/archive"
 
 params = {
-    "latitude": 37.5483,
-    "longitude": -121.9886,
+    "latitude": 25.7617,
+    "longitude": -80.1918,
     "start_date": "2023-01-01",
     "end_date": "2023-12-31",
     "daily": [
@@ -31,7 +33,7 @@ params = {
         "precipitation_sum",
         "wind_speed_10m_max",
     ],
-    "timezone": "America/Los_Angeles",
+    "timezone": "America/New_York",
 }
 
 response = requests.get(url, params=params)
@@ -202,4 +204,26 @@ with open("models/weather_classifier_metadata.json", "w") as f:
 
 print("Weather classifier saved to models/weather_classifier.pkl")
 print("Metadata saved to models/weather_classifier_metadata.json")
+
+# Comparison
+# Metric	            Fremont, CA	    Miami, FL
+# Good running days	    76.44%	        27.95%
+# Best C	            10.0	        100.0
+# Best CV AUC	        0.9574	        0.9918
+# Test AUC	            0.9937	        0.9925
+
+# --- Extension A: Second City Comparison ---
+#
+# Fremont had many more good running days (76.44%) than Miami (27.95%).
+# This difference is expected because Fremont has a mild Mediterranean climate
+# with moderate temperatures and relatively little rainfall, while Miami is
+# much hotter and wetter. As a result, many more Miami days exceed the
+# temperature threshold or receive enough precipitation to be labeled as
+# unsuitable for running.
+#
+# Despite the large difference in class distribution, the model's test AUC
+# remained very high (0.9937 for Fremont and 0.9925 for Miami). This suggests
+# that the four weather features are strong predictors of the running label in
+# both cities. The slight difference in AUC is likely due to differences in the
+# underlying weather patterns and the distribution of examples in each dataset.
 
