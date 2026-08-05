@@ -7,12 +7,12 @@ load_dotenv()
 client = OpenAI()
 
 """
-# check if the api key is laoded
+# check if the api key is loading successfully
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 print(api_key is not None)
 """
-"""
+
 #load_dotenv()
 #client = OpenAI()
 
@@ -207,7 +207,7 @@ print(response.choices[0].message.content)
 # stateless and does not remember previous API calls, it can use
 # any context that is provided in the current request.
 
-"""
+
 
 # ------------- Prompt Engineering ------------
 
@@ -485,11 +485,8 @@ print(response.choices[0].message.content)
 """
 Ollama Output:
 
-Paste your actual Ollama response here.
-
-Example:
 A large language model is an AI model capable of understanding and generating human language, trained on vast datasets to learn patterns and phrases. It processes and 
-generates text by analyzing context and understanding the underlying language structure.  
+generates text by analyzing context and understanding the underlying language structure.
 
 The model's training data allows it to learn from a wide range of linguistic information, enabling it to perform tasks like translation, summarization, or creative 
 writing with accuracy and fluency.
