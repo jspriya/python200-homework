@@ -74,7 +74,11 @@ Return a JSON list where each item has:
 - "improved"
 
 Bullet points:
-{bullet_text}
+```
+- Helped customers with their problems
+- Made reports for the management team
+- Worked with a team to finish the project on time
+```
 """
 
     messages = [
@@ -323,7 +327,8 @@ if __name__ == "__main__":
 
 # ----------- Task6 -----------------
 
-# Ethics Reflection (Option A)
+# Ethics Reflection 
+# I am choosing option A
 
 # One way this chatbot could produce biased advice is because it was trained on
 # text that may overrepresent certain industries, writing styles, or cultural
