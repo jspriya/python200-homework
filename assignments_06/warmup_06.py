@@ -3,14 +3,6 @@ from llama_index.llms.openai import OpenAI
 import os
 import string
 
-"""
-# checkin if API key loads successfully
-if load_dotenv():
-    print("API key loaded successfully.")
-else:
-    print("Warning: could not load API key. Check your .env file.")
-"""
-
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
@@ -25,16 +17,29 @@ print("Has leading/trailing spaces:", api_key != api_key.strip())
 
 # ----------- Concepts Question 1 -------------
 
+# Scenario A: A legal team wants an assistant that can answer questions about their internal policy 
+# library — hundreds of PDFs that are updated every quarter.
+
 # Scenario A — RAG (Retrieval-Augmented Generation)
 # A legal team should use RAG because the assistant needs to answer questions
 # from hundreds of internal PDFs that are updated regularly. RAG allows the
 # system to retrieve the most relevant, up-to-date information from the
 # policy library without retraining the model each time the documents change.
 
+# ----------------------------------------------------------------------------------------------------
+# Scenario B: A startup wants their model to write product copy in a very specific brand voice — a dry, 
+# minimalist style that does not appear much online. They have 3,000 examples their in-house writers 
+# produced over the years.
+
 # Scenario B — Fine-tuning
 # Fine-tuning is the best approach because the startup has 3,000 examples of
 # their desired writing style. Training the model on these examples can help
 # it consistently reproduce their specific dry, minimalist brand voice.
+
+# ----------------------------------------------------------------------------------------------------
+
+# Scenario C: A data analyst needs to ask an LLM questions about a single two-page report she just 
+# received. She does not need this to work for any other document.
 
 # Scenario C — Prompt Engineering
 # Prompt engineering is the best approach because the analyst only needs to
