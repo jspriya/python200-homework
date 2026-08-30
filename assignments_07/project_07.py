@@ -2,7 +2,10 @@ from pathlib import Path
 import os
 
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from scipy.stats import pearsonr
 from dotenv import load_dotenv
 
@@ -21,48 +24,90 @@ OUTPUTS_DIR.mkdir(exist_ok=True)
 
 df = None
 
+def get_loaded_dataframe():
+    """Return the currently loaded happiness DataFrame."""
+    return df
+
 # ----------------   Task 1 — Define the four tools -------------
 
-# Tool 1: load_happiness_data
+# Tool 1a: load_happiness_data
 
 @tool
 def load_happiness_data() -> dict:
     """Load the World Happiness dataset into memory.
 
+    Loads the merged CSV from DATA_PATH if it exists. If the merged
+    file does not exist, loads and merges the yearly CSV files from
+    the happiness_project resources directory.
+
     Returns:
-        A dictionary containing the dataset shape and column names.
-        Returns an error dictionary if the data cannot be loaded.
+        A dictionary indicating whether the data was loaded successfully.
     """
     global df
 
     path = Path(DATA_PATH)
 
-    if not path.exists():
-        return {
-            "error": f"Could not find the merged dataset at {DATA_PATH}."
-        }
-
     try:
-        df = pd.read_csv(path)
+        # Try the merged dataset first
+        if path.exists():
+            df = pd.read_csv(path)
+
+        else:
+            # Fall back to yearly CSV files
+            resources_path = Path(
+                "../assignments/resources/happiness_project/"
+            )
+
+            csv_files = sorted(resources_path.glob("*.csv"))
+
+            if not csv_files:
+                return {
+                    "error": (
+                        f"Could not find the merged dataset at {DATA_PATH} "
+                        "and no yearly CSV files were found."
+                    )
+                }
+
+            yearly_data = []
+
+            for csv_file in csv_files:
+                yearly_df = pd.read_csv(csv_file)
+                yearly_data.append(yearly_df)
+
+            df = pd.concat(yearly_data, ignore_index=True)
 
         return {
-            "shape": df.shape,
-            "columns": df.columns.tolist(),
+            "status": "success",
+            "message": "Happiness data loaded successfully."
         }
 
     except Exception as e:
         return {
-            "error": f"Could not load the dataset: {type(e).__name__}: {e}"
+            "error": (
+                f"Could not load the dataset: "
+                f"{type(e).__name__}: {e}"
+            )
         }
-"""   
-# TEST TASK 1
-print("\n--- Testing load_happiness_data ---")
+# Tool 1b : get_dataset_info
 
-result = load_happiness_data()
+@tool
+def get_dataset_info() -> dict:
+    """Return the shape and column names of the loaded happiness dataset.
 
-print(result)
+    Returns:
+        A dictionary containing the number of rows, number of columns,
+        dataset shape, and column names.
+    """
+    if df is None:
+        return {
+            "error": "No happiness data is loaded. Run load_happiness_data first."
+        }
 
-"""
+    return {
+        "shape": df.shape,
+        "columns": df.columns.tolist(),
+    }
+
 # Tool 2: summarize_column
 
 @tool
@@ -119,7 +164,18 @@ def compute_correlation(col1: str, col2: str) -> dict:
         return {"error": f"Column '{col2}' was not found."}
 
     try:
-        correlation, p_value = pearsonr(df[col1], df[col2])
+        # Remove rows where either column has a missing value
+        valid_data = df[[col1, col2]].dropna()
+
+        if len(valid_data) < 2:
+            return {
+                "error": "Not enough valid data to compute correlation."
+            }
+
+        correlation, p_value = pearsonr(
+            valid_data[col1],
+            valid_data[col2]
+        )
 
         return {
             "col1": col1,
@@ -216,12 +272,22 @@ model = OpenAIServerModel(
 SYSTEM_PROMPT = """
 You are a data analyst assistant for the World Happiness dataset.
 
-Use the available tools for loading data, summarizing columns,
-computing correlations, and ranking countries.
+Use the available tools for loading data, getting dataset information,
+summarizing columns, computing correlations, and ranking countries.
 
-Write Python code directly only when the tools are not sufficient,
-for example when creating custom plots or computing something the
-tools do not cover.
+The load_happiness_data tool loads the dataset into memory and returns
+a status message. It does not return the DataFrame.
+
+Use get_dataset_info to obtain the dataset shape and column names.
+
+Use summarize_column for descriptive statistics.
+
+Use compute_correlation for Pearson correlation and statistical
+significance. The tool automatically handles missing values.
+
+Write Python code directly when the tools are not sufficient,
+for example when creating custom plots or computing something
+the tools do not cover.
 
 Be concise and student-friendly in your responses.
 """
@@ -229,6 +295,7 @@ Be concise and student-friendly in your responses.
 agent = CodeAgent(
     tools=[
         load_happiness_data,
+        get_dataset_info,
         summarize_column,
         compute_correlation,
         get_top_n_countries,
@@ -257,9 +324,10 @@ if __name__ == "__main__":
 
         "Show me the top 5 happiest countries in 2020.",
 
-        "Plot happiness_score over the years as a line chart, "
-        "with one line per region. "
-        "Save the plot to outputs/happiness_by_region.png.",
+       "Load the happiness data. Create a line chart showing average "
+        "happiness_score by year, with one line for each regional_indicator. "
+        "Use pandas to read ../assignments_01/outputs/merged_happiness.csv "
+        "and save the plot to outputs/happiness_by_region.png.",
     ]
 
     for query in queries:
@@ -267,7 +335,7 @@ if __name__ == "__main__":
 
         response = agent.run(
             query,
-            reset=False
+            reset=True
         )
 
         print(response)
@@ -286,14 +354,19 @@ if __name__ == "__main__":
     print(response_1)
 
     # Comment:
-    # This should primarily trigger the summarize_column tool.
+    # This triggered the summarize_column tool.
 
 
     # My query 2
     my_query_2 = (
-        "Create a histogram of happiness_score and save it as "
-        "outputs/happiness_distribution.png."
+        "Load the happiness data from "
+        "../assignments_01/outputs/merged_happiness.csv. "
+        "Create a histogram of the actual happiness_score values and "
+        "save it as outputs/happiness_distribution.png."
     )
+
+    # Comment:
+    # This query requires code generation because there is no histogram tool.
 
     response_2 = agent.run(
         my_query_2,
@@ -303,34 +376,37 @@ if __name__ == "__main__":
     print("\n--- My Query 2 ---")
     print(response_2)
 
+    # Comment:
+    # This triggered code generation because the available tools do not
+    # include a histogram tool.
+
 # --- Reflection ---
 #
-# 1. In Query 3, how did the agent communicate whether the correlation was
-#    statistically significant? Did it use the p-value correctly? What threshold
-#    did it apply?
+# 1. In Query 3, how did the agent communicate whether the correlation was statistically
+#    significant? Did it use the p-value correctly? What threshold did it apply?
 #
-#    The agent attempted to determine statistical significance using the p-value.
-#    However, in my run the correlation and p-value were returned as NaN because
-#    of missing values in the data. Therefore, the agent could not make a valid
-#    statistical significance determination. A common significance threshold is
-#    p < 0.05.
+#    The agent reported a Pearson correlation of 0.6218 and a p-value of 0.0. It
+#    determined that the correlation was statistically significant because the p-value
+#    was less than 0.05. Therefore, it correctly applied the common significance
+#    threshold of 0.05 and concluded that there is a statistically significant
+#    positive correlation between gdp_per_capita and happiness_score.
 #
-# 2. Did any of the agent's responses surprise you — either by being more capable
-#    than you expected, or less? Describe one specific example.
+# 2. Did any of the agent's responses surprise you — either by being more capable than
+#    you expected, or less? Describe one specific example.
 #
-#    I was surprised that the CodeAgent was able to generate its own matplotlib
-#    code for creating a histogram without having a specific histogram tool.
-#    However, the generated code did not execute successfully because the agent
-#    had difficulty accessing the happiness_score data correctly and encountered
-#    a Matplotlib backend error. This showed me that an agent can generate code
-#    for a task but the generated code may still need to be adjusted for the
-#    structure of the data and the execution environment.
+#    I was surprised by how well the agent was able to recover from an error. When
+#    answering the question about the top 5 happiest countries in 2020, it first used
+#    the incorrect column name "Happiness Score" and received an error. It then
+#    inspected the available columns, recognized that the correct column was
+#    "happiness_score", and successfully completed the query. This showed me that
+#    the agent can use tools, recognize errors, and adjust its approach.
 #
 # 3. What one additional tool would make this agent meaningfully more useful?
-#    Describe what it would do and what kind of question it would help the agent
-#    answer. (You do not need to implement it.)
+#    Describe what it would do and what kind of question it would help the agent answer.
+#    (You do not need to implement it.)
 #
-#    An additional filtering tool would make the agent more useful. It could allow
-#    the agent to filter the dataset by year, region, or other conditions before
-#    performing an analysis. This would help answer questions such as "What is the
-#    average happiness score for European countries in 2020?"
+#    An additional data-filtering tool would make this agent more useful. It could
+#    filter the dataset by specific countries, regions, years, or ranges of values.
+#    This would allow the agent to answer questions such as, "What was the average
+#    happiness score for European countries between 2018 and 2021?" or "Which
+#    countries had a GDP per capita above 8 and a happiness score above 7 in 2021?"
