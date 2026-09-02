@@ -148,6 +148,9 @@ def verify_weather_data(supabase):
         print("Latest date:", max(dates))
 
     # 3. Get the row for 2023-07-04
+    
+    target_date = "2023-07-04"
+
     july_4_response = (
         supabase
         .table("weather_raw")
