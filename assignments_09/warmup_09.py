@@ -5,7 +5,7 @@
 #The two pieces of information supabase-py needs to connect to a
 #Supabase project are the Supabase project URL and the Supabase API key.
 
-#They are foud in the Supabase dashboard under:
+#They are found in the Supabase dashboard under:
 #Project Settings → API.
 
 #They should never be hardcoded in a Python script because the API key
@@ -39,7 +39,6 @@ def get_client():
     return create_client(supabase_url, supabase_key)
 
 supabase= get_client()
-
 print("Supabase client connected successfully!")
 
 # ----------------- Connection Question 3 ----------------
@@ -48,6 +47,7 @@ print("Supabase client connected successfully!")
 #that controls which rows a user is allowed to access or modify based
 #on security policies.
 
+#I disabled RLS on my tables for this course because the exercises
 #are focused on learning how to connect to and work with Supabase rather
 #than implementing user authentication and row-level security policies.
 #Disabling RLS makes it easier for the Python code to read and write data

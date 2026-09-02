@@ -160,7 +160,21 @@ def verify_weather_data(supabase):
         print("Record for 2023-07-04:")
         print(july_4_response.data[0])
     else:
-        print("No record found for 2023-07-04.")
+        # Find the nearest date if 2023-07-04 is missing
+        if records:
+            nearest_record = min(
+                records,
+                key=lambda record: abs(
+                    date.fromisoformat(record["date"])
+                    - date.fromisoformat(target_date)
+                )
+            )
+
+            print("2023-07-04 was not found.")
+            print("Nearest record:")
+            print(nearest_record)
+        else:
+            print("No records found in weather_raw.")
         
 # ============================================================
 # Main Pipeline
