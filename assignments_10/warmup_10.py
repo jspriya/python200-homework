@@ -45,7 +45,9 @@
 
 # --------------------  Q3 ---------------------------
 
-##records instead of re-processing all existing records each time the script runs.
+#Incremental processing means processing only the records that have
+#not already been processed instead of processing the entire dataset
+#every time the script runs.
 
 #It is important because it makes the pipeline more efficient by reducing
 #processing time and cost, especially when the dataset grows.

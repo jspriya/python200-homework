@@ -206,10 +206,9 @@ for i, (row, prediction) in enumerate(zip(to_process, predictions), start=1):
         summary = response.choices[0].message.content.strip()
 
     except Exception as e:
-        # Use a fallback instead of stopping the pipeline
-        print(f"LLM API error: {e}")
+        # Use a fallback and continue processing the remaining records
+        print(f"LLM API error for {row['date']}: {e}")
         summary = "Unable to generate an LLM recommendation."
-        break
 
     # Add the LLM summary to the enrichment record
     enrichment_records[i - 1]["llm_summary"] = summary
