@@ -18,6 +18,7 @@
 # --------------------------------------------------
 # Prefect Question 2
 # --------------------------------------------------
+from prefect import task
 @task(retries=3, retry_delay_seconds=30)
 def call_api():
     pass
