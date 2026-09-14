@@ -18,24 +18,18 @@
 # --------------------------------------------------
 # Prefect Question 2
 # --------------------------------------------------
-
 @task(retries=3, retry_delay_seconds=30)
+def call_api():
+    pass
 
 # --------------------------------------------------
 # Prefect Question 3
 # --------------------------------------------------
 
-# I would click into the failed flow run in the Prefect UI and look at the
-# transform task and its Logs tab.
-
-# I would expect to find the error message or exception that caused the
-# transform task to fail, along with any log messages captured during the
-# task. The logs can show what the task was doing before it failed and help
-# identify whether the problem was related to the ML model, OpenAI API,
-# data processing, or another error.
-
-# Because transform failed, load_enriched did not run. The Prefect UI makes
-# this clear by showing the task states and the logs for the failed task.
+# If a task fails, I would open the failed flow run in the Prefect UI and select the failed task to view its 
+# task-run details. I would look at the Logs section for the exception message and error output, including the 
+# stack trace when available. This would show me what caused the task to fail and help me determine whether the 
+# problem was with the API request, data processing, or another part of the task.#
 
 # **********************  Production Patterns ********************
 
@@ -95,10 +89,12 @@
 from prefect import task
 from prefect.logging import get_run_logger
 
-@task
+@task(retries=2, retry_delay_seconds=5)
 def load_enriched(enrichment_records: list) -> None:
     logger = get_run_logger()
-    logger.info(f"Upserted {len(enrichment_records)} enrichment records")
+    logger.info(
+        f"Upserted {len(enrichment_records)} enrichment records into weather_enriched."
+    )
 
 # --------------------------------------------------
 # Production Question 4

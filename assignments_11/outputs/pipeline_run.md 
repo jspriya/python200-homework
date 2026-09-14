@@ -3,11 +3,14 @@
  The pipeline did not run cleanly on the first try because I initially forgot to import the flow decorator 
  from Prefect, which caused a NameError; I fixed it by changing the import to from prefect import task, flow. 
  After that fix, the pipeline ran successfully and extracted 365 daily weather records, loaded all 365 records 
- into weather_raw, created 365 enrichment records, and loaded all 365 into weather_enriched. The Prefect run
- showed all four tasks—extract, load_raw, transform, and load_enriched—as Completed, and none of the tasks needed 
- to retry. The LLM summaries in weather_enriched were generally useful because they provided a short recommendation
- based on the weather conditions and the ML prediction. One summary that stood out was [insert one specific 
- summary from your table], because [explain why it was accurate, useful, or questionable]. If I deployed this 
- pipeline to run daily, I would change the extraction step to dynamically fetch the previous day's weather data 
+ into weather_raw, created 365 enrichment records, and loaded all 365 into weather_enriched. 
+ 
+ The Prefect run showed all four tasks—extract, load_raw, transform, and load_enriched—as Completed, and none of the 
+ tasks needed to retry. The LLM summaries in weather_enriched were generally useful because they provided a short 
+ recommendation based on the weather conditions and the ML prediction. One summary that stood out was 
+ "Given the mixed conditions with wind speed at 27.2 km/h and precipitation of 21.0 mm, it's not a good day for 
+ running", because the strong wind and the substantial amount of precipitation can make it uncomfortable for running.
+ 
+ If I deployed this pipeline to run daily, I would change the extraction step to dynamically fetch the previous day's weather data 
  and schedule the Prefect flow to run automatically each morning, while keeping the incremental check so 
  already-enriched dates are not processed again.
