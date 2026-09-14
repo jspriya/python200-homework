@@ -29,7 +29,7 @@ def call_api():
 # If a task fails, I would open the failed flow run in the Prefect UI and select the failed task to view its 
 # task-run details. I would look at the Logs section for the exception message and error output, including the 
 # stack trace when available. This would show me what caused the task to fail and help me determine whether the 
-# problem was with the API request, data processing, or another part of the task.#
+# problem was with the API request, data processing, or another part of the task.
 
 # **********************  Production Patterns ********************
 

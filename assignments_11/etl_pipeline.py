@@ -210,8 +210,7 @@ def weather_pipeline():
     enrichment_records = transform(records)
     load_enriched(enrichment_records)
 
-    print("Weather pipeline completed successfully.")
-
+    print("Weather pipeline completed successfully; skipping weather_enriched.")
 
 if __name__ == "__main__":
     weather_pipeline()
