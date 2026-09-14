@@ -1,0 +1,25 @@
+{
+    "python_version": "3.11.15",
+    "scikit_learn_version": "1.9.0",
+    "feature_names": [
+        "temperature_2m_max",
+        "temperature_2m_min",
+        "precipitation_sum",
+        "wind_speed_10m_max"
+    ],
+    "best_hyperparameters": {
+        "logreg__C": 100.0
+    },
+    "test_auc": 0.9924528301886792,
+    "city": {
+        "name": "Fremont, CA",
+        "latitude": 37.5483,
+        "longitude": -121.9886
+    },
+    "label_thresholds": {
+        "temperature_2m_max": "7\u00b0C to 28\u00b0C",
+        "temperature_2m_min": ">= 0\u00b0C",
+        "precipitation_sum": "< 3.0 mm",
+        "wind_speed_10m_max": "< 30 km/h"
+    }
+}
